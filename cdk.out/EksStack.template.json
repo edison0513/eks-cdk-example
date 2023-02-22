@@ -1,0 +1,1418 @@
+{
+  "Resources": {
+    "AdminRole38563C57": {
+      "Type": "AWS::IAM::Role",
+      "Properties": {
+        "AssumeRolePolicyDocument": {
+          "Statement": [
+            {
+              "Action": "sts:AssumeRole",
+              "Effect": "Allow",
+              "Principal": {
+                "AWS": {
+                  "Fn::Join": [
+                    "",
+                    [
+                      "arn:",
+                      {
+                        "Ref": "AWS::Partition"
+                      },
+                      ":iam::069140953284:root"
+                    ]
+                  ]
+                }
+              }
+            }
+          ],
+          "Version": "2012-10-17"
+        }
+      },
+      "Metadata": {
+        "aws:cdk:path": "EksStack/AdminRole/Resource"
+      }
+    },
+    "tapnowstagingclusterRole460C3DDE": {
+      "Type": "AWS::IAM::Role",
+      "Properties": {
+        "AssumeRolePolicyDocument": {
+          "Statement": [
+            {
+              "Action": "sts:AssumeRole",
+              "Effect": "Allow",
+              "Principal": {
+                "Service": "eks.amazonaws.com"
+              }
+            }
+          ],
+          "Version": "2012-10-17"
+        },
+        "ManagedPolicyArns": [
+          {
+            "Fn::Join": [
+              "",
+              [
+                "arn:",
+                {
+                  "Ref": "AWS::Partition"
+                },
+                ":iam::aws:policy/AmazonEKSClusterPolicy"
+              ]
+            ]
+          }
+        ]
+      },
+      "Metadata": {
+        "aws:cdk:path": "EksStack/tapnow-staging-cluster/Role/Resource"
+      }
+    },
+    "tapnowstagingclusterControlPlaneSecurityGroup8C1FD646": {
+      "Type": "AWS::EC2::SecurityGroup",
+      "Properties": {
+        "GroupDescription": "EKS Control Plane Security Group",
+        "SecurityGroupEgress": [
+          {
+            "CidrIp": "0.0.0.0/0",
+            "Description": "Allow all outbound traffic by default",
+            "IpProtocol": "-1"
+          }
+        ],
+        "VpcId": "vpc-06768a4fbb23695bd"
+      },
+      "Metadata": {
+        "aws:cdk:path": "EksStack/tapnow-staging-cluster/ControlPlaneSecurityGroup/Resource"
+      }
+    },
+    "tapnowstagingclusterCreationRole4CA48E9C": {
+      "Type": "AWS::IAM::Role",
+      "Properties": {
+        "AssumeRolePolicyDocument": {
+          "Statement": [
+            {
+              "Action": "sts:AssumeRole",
+              "Effect": "Allow",
+              "Principal": {
+                "AWS": {
+                  "Fn::Join": [
+                    "",
+                    [
+                      "arn:",
+                      {
+                        "Ref": "AWS::Partition"
+                      },
+                      ":iam::069140953284:root"
+                    ]
+                  ]
+                }
+              }
+            }
+          ],
+          "Version": "2012-10-17"
+        }
+      },
+      "Metadata": {
+        "aws:cdk:path": "EksStack/tapnow-staging-cluster/Resource/CreationRole/Resource"
+      }
+    },
+    "tapnowstagingclusterCreationRoleDefaultPolicy6E2C280C": {
+      "Type": "AWS::IAM::Policy",
+      "Properties": {
+        "PolicyDocument": {
+          "Statement": [
+            {
+              "Action": "iam:PassRole",
+              "Effect": "Allow",
+              "Resource": {
+                "Fn::GetAtt": [
+                  "tapnowstagingclusterRole460C3DDE",
+                  "Arn"
+                ]
+              }
+            },
+            {
+              "Action": [
+                "eks:CreateCluster",
+                "eks:DescribeCluster",
+                "eks:DescribeUpdate",
+                "eks:DeleteCluster",
+                "eks:UpdateClusterVersion",
+                "eks:UpdateClusterConfig",
+                "eks:CreateFargateProfile",
+                "eks:TagResource",
+                "eks:UntagResource"
+              ],
+              "Effect": "Allow",
+              "Resource": [
+                {
+                  "Fn::Join": [
+                    "",
+                    [
+                      "arn:",
+                      {
+                        "Ref": "AWS::Partition"
+                      },
+                      ":eks:ap-southeast-1:069140953284:cluster/tapnow-staging-cluster"
+                    ]
+                  ]
+                },
+                {
+                  "Fn::Join": [
+                    "",
+                    [
+                      "arn:",
+                      {
+                        "Ref": "AWS::Partition"
+                      },
+                      ":eks:ap-southeast-1:069140953284:cluster/tapnow-staging-cluster/*"
+                    ]
+                  ]
+                }
+              ]
+            },
+            {
+              "Action": [
+                "eks:DescribeFargateProfile",
+                "eks:DeleteFargateProfile"
+              ],
+              "Effect": "Allow",
+              "Resource": {
+                "Fn::Join": [
+                  "",
+                  [
+                    "arn:",
+                    {
+                      "Ref": "AWS::Partition"
+                    },
+                    ":eks:ap-southeast-1:069140953284:fargateprofile/tapnow-staging-cluster/*"
+                  ]
+                ]
+              }
+            },
+            {
+              "Action": [
+                "iam:GetRole",
+                "iam:listAttachedRolePolicies"
+              ],
+              "Effect": "Allow",
+              "Resource": "*"
+            },
+            {
+              "Action": "iam:CreateServiceLinkedRole",
+              "Effect": "Allow",
+              "Resource": "*"
+            },
+            {
+              "Action": [
+                "ec2:DescribeInstances",
+                "ec2:DescribeNetworkInterfaces",
+                "ec2:DescribeSecurityGroups",
+                "ec2:DescribeSubnets",
+                "ec2:DescribeRouteTables",
+                "ec2:DescribeDhcpOptions",
+                "ec2:DescribeVpcs"
+              ],
+              "Effect": "Allow",
+              "Resource": "*"
+            }
+          ],
+          "Version": "2012-10-17"
+        },
+        "PolicyName": "tapnowstagingclusterCreationRoleDefaultPolicy6E2C280C",
+        "Roles": [
+          {
+            "Ref": "tapnowstagingclusterCreationRole4CA48E9C"
+          }
+        ]
+      },
+      "Metadata": {
+        "aws:cdk:path": "EksStack/tapnow-staging-cluster/Resource/CreationRole/DefaultPolicy/Resource"
+      }
+    },
+    "tapnowstagingcluster78169EDE": {
+      "Type": "Custom::AWSCDK-EKS-Cluster",
+      "Properties": {
+        "ServiceToken": {
+          "Fn::GetAtt": [
+            "awscdkawseksClusterResourceProviderNestedStackawscdkawseksClusterResourceProviderNestedStackResource9827C454",
+            "Outputs.EksStackawscdkawseksClusterResourceProviderframeworkonEvent7CA25C3FArn"
+          ]
+        },
+        "Config": {
+          "name": "tapnow-staging-cluster",
+          "version": "1.21",
+          "roleArn": {
+            "Fn::GetAtt": [
+              "tapnowstagingclusterRole460C3DDE",
+              "Arn"
+            ]
+          },
+          "resourcesVpcConfig": {
+            "subnetIds": [
+              "subnet-064e1f0232657712e",
+              "subnet-07d5e783973c90030"
+            ],
+            "securityGroupIds": [
+              {
+                "Fn::GetAtt": [
+                  "tapnowstagingclusterControlPlaneSecurityGroup8C1FD646",
+                  "GroupId"
+                ]
+              }
+            ],
+            "endpointPublicAccess": true,
+            "endpointPrivateAccess": true
+          }
+        },
+        "AssumeRoleArn": {
+          "Fn::GetAtt": [
+            "tapnowstagingclusterCreationRole4CA48E9C",
+            "Arn"
+          ]
+        },
+        "AttributesRevision": 2
+      },
+      "DependsOn": [
+        "tapnowstagingclusterCreationRoleDefaultPolicy6E2C280C",
+        "tapnowstagingclusterCreationRole4CA48E9C"
+      ],
+      "UpdateReplacePolicy": "Delete",
+      "DeletionPolicy": "Delete",
+      "Metadata": {
+        "aws:cdk:path": "EksStack/tapnow-staging-cluster/Resource/Resource/Default"
+      }
+    },
+    "tapnowstagingclusterKubectlReadyBarrierD15DE865": {
+      "Type": "AWS::SSM::Parameter",
+      "Properties": {
+        "Type": "String",
+        "Value": "aws:cdk:eks:kubectl-ready"
+      },
+      "DependsOn": [
+        "tapnowstagingclusterCreationRoleDefaultPolicy6E2C280C",
+        "tapnowstagingclusterCreationRole4CA48E9C",
+        "tapnowstagingcluster78169EDE"
+      ],
+      "Metadata": {
+        "aws:cdk:path": "EksStack/tapnow-staging-cluster/KubectlReadyBarrier"
+      }
+    },
+    "tapnowstagingclusterAwsAuthmanifest87913BC0": {
+      "Type": "Custom::AWSCDK-EKS-KubernetesResource",
+      "Properties": {
+        "ServiceToken": {
+          "Fn::GetAtt": [
+            "awscdkawseksKubectlProviderNestedStackawscdkawseksKubectlProviderNestedStackResourceA7AEBA6B",
+            "Outputs.EksStackawscdkawseksKubectlProviderframeworkonEvent47AB1AD9Arn"
+          ]
+        },
+        "Manifest": {
+          "Fn::Join": [
+            "",
+            [
+              "[{\"apiVersion\":\"v1\",\"kind\":\"ConfigMap\",\"metadata\":{\"name\":\"aws-auth\",\"namespace\":\"kube-system\",\"labels\":{\"aws.cdk.eks/prune-c8ed3bc8a4d55758de9231918a71ea057aa97afd1c\":\"\"}},\"data\":{\"mapRoles\":\"[{\\\"rolearn\\\":\\\"",
+              {
+                "Fn::GetAtt": [
+                  "AdminRole38563C57",
+                  "Arn"
+                ]
+              },
+              "\\\",\\\"username\\\":\\\"",
+              {
+                "Fn::GetAtt": [
+                  "AdminRole38563C57",
+                  "Arn"
+                ]
+              },
+              "\\\",\\\"groups\\\":[\\\"system:masters\\\"]},{\\\"rolearn\\\":\\\"",
+              {
+                "Fn::GetAtt": [
+                  "tapnowstagingclusterNodegrouppublicworkernodeNodeGroupRoleE3D1E05F",
+                  "Arn"
+                ]
+              },
+              "\\\",\\\"username\\\":\\\"system:node:{{EC2PrivateDNSName}}\\\",\\\"groups\\\":[\\\"system:bootstrappers\\\",\\\"system:nodes\\\"]},{\\\"rolearn\\\":\\\"",
+              {
+                "Fn::GetAtt": [
+                  "tapnowstagingclusterNodegroupprivateworkernodeNodeGroupRole128A68BF",
+                  "Arn"
+                ]
+              },
+              "\\\",\\\"username\\\":\\\"system:node:{{EC2PrivateDNSName}}\\\",\\\"groups\\\":[\\\"system:bootstrappers\\\",\\\"system:nodes\\\"]},{\\\"rolearn\\\":\\\"",
+              {
+                "Fn::GetAtt": [
+                  "AdminRole38563C57",
+                  "Arn"
+                ]
+              },
+              "\\\",\\\"username\\\":\\\"masterRole\\\",\\\"groups\\\":[\\\"system:masters\\\"]}]\",\"mapUsers\":\"[]\",\"mapAccounts\":\"[]\"}}]"
+            ]
+          ]
+        },
+        "ClusterName": {
+          "Ref": "tapnowstagingcluster78169EDE"
+        },
+        "RoleArn": {
+          "Fn::GetAtt": [
+            "tapnowstagingclusterCreationRole4CA48E9C",
+            "Arn"
+          ]
+        },
+        "PruneLabel": "aws.cdk.eks/prune-c8ed3bc8a4d55758de9231918a71ea057aa97afd1c",
+        "Overwrite": true
+      },
+      "DependsOn": [
+        "tapnowstagingclusterKubectlReadyBarrierD15DE865"
+      ],
+      "UpdateReplacePolicy": "Delete",
+      "DeletionPolicy": "Delete",
+      "Metadata": {
+        "aws:cdk:path": "EksStack/tapnow-staging-cluster/AwsAuth/manifest/Resource/Default"
+      }
+    },
+    "tapnowstagingclusterNodegrouppublicworkernodeNodeGroupRoleE3D1E05F": {
+      "Type": "AWS::IAM::Role",
+      "Properties": {
+        "AssumeRolePolicyDocument": {
+          "Statement": [
+            {
+              "Action": "sts:AssumeRole",
+              "Effect": "Allow",
+              "Principal": {
+                "Service": "ec2.amazonaws.com"
+              }
+            }
+          ],
+          "Version": "2012-10-17"
+        },
+        "ManagedPolicyArns": [
+          {
+            "Fn::Join": [
+              "",
+              [
+                "arn:",
+                {
+                  "Ref": "AWS::Partition"
+                },
+                ":iam::aws:policy/AmazonEKSWorkerNodePolicy"
+              ]
+            ]
+          },
+          {
+            "Fn::Join": [
+              "",
+              [
+                "arn:",
+                {
+                  "Ref": "AWS::Partition"
+                },
+                ":iam::aws:policy/AmazonEKS_CNI_Policy"
+              ]
+            ]
+          },
+          {
+            "Fn::Join": [
+              "",
+              [
+                "arn:",
+                {
+                  "Ref": "AWS::Partition"
+                },
+                ":iam::aws:policy/AmazonEC2ContainerRegistryReadOnly"
+              ]
+            ]
+          }
+        ]
+      },
+      "Metadata": {
+        "aws:cdk:path": "EksStack/tapnow-staging-cluster/Nodegrouppublic-workernode/NodeGroupRole/Resource"
+      }
+    },
+    "tapnowstagingclusterNodegrouppublicworkernode7FA94038": {
+      "Type": "AWS::EKS::Nodegroup",
+      "Properties": {
+        "ClusterName": {
+          "Ref": "tapnowstagingcluster78169EDE"
+        },
+        "NodeRole": {
+          "Fn::GetAtt": [
+            "tapnowstagingclusterNodegrouppublicworkernodeNodeGroupRoleE3D1E05F",
+            "Arn"
+          ]
+        },
+        "Subnets": [
+          "subnet-064e1f0232657712e",
+          "subnet-07d5e783973c90030"
+        ],
+        "AmiType": "AL2_x86_64",
+        "ForceUpdateEnabled": true,
+        "InstanceTypes": [
+          "t3.small"
+        ],
+        "NodegroupName": "worknode-public",
+        "ScalingConfig": {
+          "DesiredSize": 1,
+          "MaxSize": 1,
+          "MinSize": 1
+        }
+      },
+      "Metadata": {
+        "aws:cdk:path": "EksStack/tapnow-staging-cluster/Nodegrouppublic-workernode/Resource"
+      }
+    },
+    "tapnowstagingclusterNodegroupprivateworkernodeNodeGroupRole128A68BF": {
+      "Type": "AWS::IAM::Role",
+      "Properties": {
+        "AssumeRolePolicyDocument": {
+          "Statement": [
+            {
+              "Action": "sts:AssumeRole",
+              "Effect": "Allow",
+              "Principal": {
+                "Service": "ec2.amazonaws.com"
+              }
+            }
+          ],
+          "Version": "2012-10-17"
+        },
+        "ManagedPolicyArns": [
+          {
+            "Fn::Join": [
+              "",
+              [
+                "arn:",
+                {
+                  "Ref": "AWS::Partition"
+                },
+                ":iam::aws:policy/AmazonEKSWorkerNodePolicy"
+              ]
+            ]
+          },
+          {
+            "Fn::Join": [
+              "",
+              [
+                "arn:",
+                {
+                  "Ref": "AWS::Partition"
+                },
+                ":iam::aws:policy/AmazonEKS_CNI_Policy"
+              ]
+            ]
+          },
+          {
+            "Fn::Join": [
+              "",
+              [
+                "arn:",
+                {
+                  "Ref": "AWS::Partition"
+                },
+                ":iam::aws:policy/AmazonEC2ContainerRegistryReadOnly"
+              ]
+            ]
+          }
+        ]
+      },
+      "Metadata": {
+        "aws:cdk:path": "EksStack/tapnow-staging-cluster/Nodegroupprivate-workernode/NodeGroupRole/Resource"
+      }
+    },
+    "tapnowstagingclusterNodegroupprivateworkernodeFE562097": {
+      "Type": "AWS::EKS::Nodegroup",
+      "Properties": {
+        "ClusterName": {
+          "Ref": "tapnowstagingcluster78169EDE"
+        },
+        "NodeRole": {
+          "Fn::GetAtt": [
+            "tapnowstagingclusterNodegroupprivateworkernodeNodeGroupRole128A68BF",
+            "Arn"
+          ]
+        },
+        "Subnets": [
+          "subnet-0f65c577c4a8eaf0e",
+          "subnet-09a856e8700beab54"
+        ],
+        "AmiType": "AL2_x86_64",
+        "ForceUpdateEnabled": true,
+        "InstanceTypes": [
+          "t3.medium"
+        ],
+        "NodegroupName": "worknode-private",
+        "ScalingConfig": {
+          "DesiredSize": 1,
+          "MaxSize": 1,
+          "MinSize": 1
+        }
+      },
+      "Metadata": {
+        "aws:cdk:path": "EksStack/tapnow-staging-cluster/Nodegroupprivate-workernode/Resource"
+      }
+    },
+    "tapnowstagingclusterOpenIdConnectProvider95209743": {
+      "Type": "Custom::AWSCDKOpenIdConnectProvider",
+      "Properties": {
+        "ServiceToken": {
+          "Fn::GetAtt": [
+            "CustomAWSCDKOpenIdConnectProviderCustomResourceProviderHandlerF2C543E0",
+            "Arn"
+          ]
+        },
+        "ClientIDList": [
+          "sts.amazonaws.com"
+        ],
+        "ThumbprintList": [
+          "9e99a48a9960b14926bb7f3b02e22da2b0ab7280"
+        ],
+        "Url": {
+          "Fn::GetAtt": [
+            "tapnowstagingcluster78169EDE",
+            "OpenIdConnectIssuerUrl"
+          ]
+        }
+      },
+      "UpdateReplacePolicy": "Delete",
+      "DeletionPolicy": "Delete",
+      "Metadata": {
+        "aws:cdk:path": "EksStack/tapnow-staging-cluster/OpenIdConnectProvider/Resource/Default"
+      }
+    },
+    "tapnowstagingclusterawsloadbalancercontrollerConditionJson54DF9B97": {
+      "Type": "Custom::AWSCDKCfnJson",
+      "Properties": {
+        "ServiceToken": {
+          "Fn::GetAtt": [
+            "AWSCDKCfnUtilsProviderCustomResourceProviderHandlerCF82AA57",
+            "Arn"
+          ]
+        },
+        "Value": {
+          "Fn::Join": [
+            "",
+            [
+              "{\"",
+              {
+                "Fn::Select": [
+                  1,
+                  {
+                    "Fn::Split": [
+                      ":oidc-provider/",
+                      {
+                        "Ref": "tapnowstagingclusterOpenIdConnectProvider95209743"
+                      }
+                    ]
+                  }
+                ]
+              },
+              ":aud\":\"sts.amazonaws.com\",\"",
+              {
+                "Fn::Select": [
+                  1,
+                  {
+                    "Fn::Split": [
+                      ":oidc-provider/",
+                      {
+                        "Ref": "tapnowstagingclusterOpenIdConnectProvider95209743"
+                      }
+                    ]
+                  }
+                ]
+              },
+              ":sub\":\"system:serviceaccount:kube-system:aws-load-balancer-controller\"}"
+            ]
+          ]
+        }
+      },
+      "UpdateReplacePolicy": "Delete",
+      "DeletionPolicy": "Delete",
+      "Metadata": {
+        "aws:cdk:path": "EksStack/tapnow-staging-cluster/aws-load-balancer-controller/ConditionJson/Resource/Default"
+      }
+    },
+    "tapnowstagingclusterawsloadbalancercontrollerRole3391A03D": {
+      "Type": "AWS::IAM::Role",
+      "Properties": {
+        "AssumeRolePolicyDocument": {
+          "Statement": [
+            {
+              "Action": "sts:AssumeRoleWithWebIdentity",
+              "Condition": {
+                "StringEquals": {
+                  "Fn::GetAtt": [
+                    "tapnowstagingclusterawsloadbalancercontrollerConditionJson54DF9B97",
+                    "Value"
+                  ]
+                }
+              },
+              "Effect": "Allow",
+              "Principal": {
+                "Federated": {
+                  "Ref": "tapnowstagingclusterOpenIdConnectProvider95209743"
+                }
+              }
+            }
+          ],
+          "Version": "2012-10-17"
+        }
+      },
+      "Metadata": {
+        "aws:cdk:path": "EksStack/tapnow-staging-cluster/aws-load-balancer-controller/Role/Resource"
+      }
+    },
+    "tapnowstagingclusterawsloadbalancercontrollermanifestawsloadbalancercontrollerServiceAccountResourceFD6EF3FE": {
+      "Type": "Custom::AWSCDK-EKS-KubernetesResource",
+      "Properties": {
+        "ServiceToken": {
+          "Fn::GetAtt": [
+            "awscdkawseksKubectlProviderNestedStackawscdkawseksKubectlProviderNestedStackResourceA7AEBA6B",
+            "Outputs.EksStackawscdkawseksKubectlProviderframeworkonEvent47AB1AD9Arn"
+          ]
+        },
+        "Manifest": {
+          "Fn::Join": [
+            "",
+            [
+              "[{\"apiVersion\":\"v1\",\"kind\":\"ServiceAccount\",\"metadata\":{\"name\":\"aws-load-balancer-controller\",\"namespace\":\"kube-system\",\"labels\":{\"aws.cdk.eks/prune-c8c4dc3d0ff432f114b5892d97c53d99c26716b7c8\":\"\",\"app.kubernetes.io/name\":\"aws-load-balancer-controller\"},\"annotations\":{\"eks.amazonaws.com/role-arn\":\"",
+              {
+                "Fn::GetAtt": [
+                  "tapnowstagingclusterawsloadbalancercontrollerRole3391A03D",
+                  "Arn"
+                ]
+              },
+              "\"}}}]"
+            ]
+          ]
+        },
+        "ClusterName": {
+          "Ref": "tapnowstagingcluster78169EDE"
+        },
+        "RoleArn": {
+          "Fn::GetAtt": [
+            "tapnowstagingclusterCreationRole4CA48E9C",
+            "Arn"
+          ]
+        },
+        "PruneLabel": "aws.cdk.eks/prune-c8c4dc3d0ff432f114b5892d97c53d99c26716b7c8"
+      },
+      "DependsOn": [
+        "tapnowstagingclusterKubectlReadyBarrierD15DE865"
+      ],
+      "UpdateReplacePolicy": "Delete",
+      "DeletionPolicy": "Delete",
+      "Metadata": {
+        "aws:cdk:path": "EksStack/tapnow-staging-cluster/aws-load-balancer-controller/manifest-aws-load-balancer-controllerServiceAccountResource/Resource/Default"
+      }
+    },
+    "tapnowstagingclusterchartawsloadbalancercontroller2BB40203": {
+      "Type": "Custom::AWSCDK-EKS-HelmChart",
+      "Properties": {
+        "ServiceToken": {
+          "Fn::GetAtt": [
+            "awscdkawseksKubectlProviderNestedStackawscdkawseksKubectlProviderNestedStackResourceA7AEBA6B",
+            "Outputs.EksStackawscdkawseksKubectlProviderframeworkonEvent47AB1AD9Arn"
+          ]
+        },
+        "ClusterName": {
+          "Ref": "tapnowstagingcluster78169EDE"
+        },
+        "RoleArn": {
+          "Fn::GetAtt": [
+            "tapnowstagingclusterCreationRole4CA48E9C",
+            "Arn"
+          ]
+        },
+        "Release": "aws-load-balancer-controller",
+        "Chart": "aws-load-balancer-controller",
+        "Version": "1.4.5",
+        "Wait": true,
+        "Timeout": "900s",
+        "Values": {
+          "Fn::Join": [
+            "",
+            [
+              "{\"clusterName\":\"",
+              {
+                "Ref": "tapnowstagingcluster78169EDE"
+              },
+              "\",\"serviceAccount\":{\"create\":false,\"name\":\"aws-load-balancer-controller\"},\"enableShield\":false,\"enableWaf\":false,\"enableWafv2\":false}"
+            ]
+          ]
+        },
+        "Namespace": "kube-system",
+        "Repository": "https://aws.github.io/eks-charts",
+        "CreateNamespace": true
+      },
+      "DependsOn": [
+        "tapnowstagingclusterawsloadbalancercontrollerConditionJson54DF9B97",
+        "tapnowstagingclusterawsloadbalancercontrollermanifestawsloadbalancercontrollerServiceAccountResourceFD6EF3FE",
+        "tapnowstagingclusterawsloadbalancercontrollerRole3391A03D",
+        "tapnowstagingclusterKubectlReadyBarrierD15DE865",
+        "tapnowstagingclusterOpenIdConnectProvider95209743"
+      ],
+      "UpdateReplacePolicy": "Delete",
+      "DeletionPolicy": "Delete",
+      "Metadata": {
+        "aws:cdk:path": "EksStack/tapnow-staging-cluster/chart-aws-loadbalancer-controller/Resource/Default"
+      }
+    },
+    "awscdkawseksClusterResourceProviderNestedStackawscdkawseksClusterResourceProviderNestedStackResource9827C454": {
+      "Type": "AWS::CloudFormation::Stack",
+      "Properties": {
+        "TemplateURL": {
+          "Fn::Join": [
+            "",
+            [
+              "https://s3.ap-southeast-1.",
+              {
+                "Ref": "AWS::URLSuffix"
+              },
+              "/cdk-hnb659fds-assets-069140953284-ap-southeast-1/1a26006684aeec1bcda3e66542b9f57f7eae2db8b42610857fd307b77d3af544.json"
+            ]
+          ]
+        },
+        "Parameters": {
+          "referencetoEksStacktapnowstagingclusterCreationRole97EB3735Arn": {
+            "Fn::GetAtt": [
+              "tapnowstagingclusterCreationRole4CA48E9C",
+              "Arn"
+            ]
+          }
+        }
+      },
+      "UpdateReplacePolicy": "Delete",
+      "DeletionPolicy": "Delete",
+      "Metadata": {
+        "aws:cdk:path": "EksStack/@aws-cdk--aws-eks.ClusterResourceProvider.NestedStack/@aws-cdk--aws-eks.ClusterResourceProvider.NestedStackResource",
+        "aws:asset:path": "EksStackawscdkawseksClusterResourceProvider59ABF550.nested.template.json",
+        "aws:asset:property": "TemplateURL"
+      }
+    },
+    "awscdkawseksKubectlProviderNestedStackawscdkawseksKubectlProviderNestedStackResourceA7AEBA6B": {
+      "Type": "AWS::CloudFormation::Stack",
+      "Properties": {
+        "TemplateURL": {
+          "Fn::Join": [
+            "",
+            [
+              "https://s3.ap-southeast-1.",
+              {
+                "Ref": "AWS::URLSuffix"
+              },
+              "/cdk-hnb659fds-assets-069140953284-ap-southeast-1/53790c1d2f2dc9590b89e3ccd0f19df7ef54602e7b0893a753d54c5cf454bde0.json"
+            ]
+          ]
+        },
+        "Parameters": {
+          "referencetoEksStacktapnowstagingcluster956694D5Arn": {
+            "Fn::GetAtt": [
+              "tapnowstagingcluster78169EDE",
+              "Arn"
+            ]
+          },
+          "referencetoEksStacktapnowstagingclusterCreationRole97EB3735Arn": {
+            "Fn::GetAtt": [
+              "tapnowstagingclusterCreationRole4CA48E9C",
+              "Arn"
+            ]
+          }
+        }
+      },
+      "UpdateReplacePolicy": "Delete",
+      "DeletionPolicy": "Delete",
+      "Metadata": {
+        "aws:cdk:path": "EksStack/@aws-cdk--aws-eks.KubectlProvider.NestedStack/@aws-cdk--aws-eks.KubectlProvider.NestedStackResource",
+        "aws:asset:path": "EksStackawscdkawseksKubectlProvider49B99589.nested.template.json",
+        "aws:asset:property": "TemplateURL"
+      }
+    },
+    "CustomAWSCDKOpenIdConnectProviderCustomResourceProviderRole517FED65": {
+      "Type": "AWS::IAM::Role",
+      "Properties": {
+        "AssumeRolePolicyDocument": {
+          "Version": "2012-10-17",
+          "Statement": [
+            {
+              "Action": "sts:AssumeRole",
+              "Effect": "Allow",
+              "Principal": {
+                "Service": "lambda.amazonaws.com"
+              }
+            }
+          ]
+        },
+        "ManagedPolicyArns": [
+          {
+            "Fn::Sub": "arn:${AWS::Partition}:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
+          }
+        ],
+        "Policies": [
+          {
+            "PolicyName": "Inline",
+            "PolicyDocument": {
+              "Version": "2012-10-17",
+              "Statement": [
+                {
+                  "Effect": "Allow",
+                  "Resource": "*",
+                  "Action": [
+                    "iam:CreateOpenIDConnectProvider",
+                    "iam:DeleteOpenIDConnectProvider",
+                    "iam:UpdateOpenIDConnectProviderThumbprint",
+                    "iam:AddClientIDToOpenIDConnectProvider",
+                    "iam:RemoveClientIDFromOpenIDConnectProvider"
+                  ]
+                }
+              ]
+            }
+          }
+        ]
+      },
+      "Metadata": {
+        "aws:cdk:path": "EksStack/Custom::AWSCDKOpenIdConnectProviderCustomResourceProvider/Role"
+      }
+    },
+    "CustomAWSCDKOpenIdConnectProviderCustomResourceProviderHandlerF2C543E0": {
+      "Type": "AWS::Lambda::Function",
+      "Properties": {
+        "Code": {
+          "S3Bucket": "cdk-hnb659fds-assets-069140953284-ap-southeast-1",
+          "S3Key": "6344328f714011c8fd36f97b0a4283b1f6457c7cd48795da86c4303644ca6e15.zip"
+        },
+        "Timeout": 900,
+        "MemorySize": 128,
+        "Handler": "__entrypoint__.handler",
+        "Role": {
+          "Fn::GetAtt": [
+            "CustomAWSCDKOpenIdConnectProviderCustomResourceProviderRole517FED65",
+            "Arn"
+          ]
+        },
+        "Runtime": "nodejs12.x"
+      },
+      "DependsOn": [
+        "CustomAWSCDKOpenIdConnectProviderCustomResourceProviderRole517FED65"
+      ],
+      "Metadata": {
+        "aws:cdk:path": "EksStack/Custom::AWSCDKOpenIdConnectProviderCustomResourceProvider/Handler",
+        "aws:asset:path": "asset.6344328f714011c8fd36f97b0a4283b1f6457c7cd48795da86c4303644ca6e15",
+        "aws:asset:property": "Code"
+      }
+    },
+    "awsnodetrustpolicy83070BC0": {
+      "Type": "Custom::AWSCDKCfnJson",
+      "Properties": {
+        "ServiceToken": {
+          "Fn::GetAtt": [
+            "AWSCDKCfnUtilsProviderCustomResourceProviderHandlerCF82AA57",
+            "Arn"
+          ]
+        },
+        "Value": {
+          "Fn::Join": [
+            "",
+            [
+              "{\"",
+              {
+                "Fn::Select": [
+                  1,
+                  {
+                    "Fn::Split": [
+                      ":oidc-provider/",
+                      {
+                        "Ref": "tapnowstagingclusterOpenIdConnectProvider95209743"
+                      }
+                    ]
+                  }
+                ]
+              },
+              ":aud\":\"sts.amazonaws.com\",\"",
+              {
+                "Fn::Select": [
+                  1,
+                  {
+                    "Fn::Split": [
+                      ":oidc-provider/",
+                      {
+                        "Ref": "tapnowstagingclusterOpenIdConnectProvider95209743"
+                      }
+                    ]
+                  }
+                ]
+              },
+              ":sub\":\"system:serviceaccount:kube-system:aws-node\"}"
+            ]
+          ]
+        }
+      },
+      "UpdateReplacePolicy": "Delete",
+      "DeletionPolicy": "Delete",
+      "Metadata": {
+        "aws:cdk:path": "EksStack/aws-node-trust-policy/Resource/Default"
+      }
+    },
+    "AWSCDKCfnUtilsProviderCustomResourceProviderRoleFE0EE867": {
+      "Type": "AWS::IAM::Role",
+      "Properties": {
+        "AssumeRolePolicyDocument": {
+          "Version": "2012-10-17",
+          "Statement": [
+            {
+              "Action": "sts:AssumeRole",
+              "Effect": "Allow",
+              "Principal": {
+                "Service": "lambda.amazonaws.com"
+              }
+            }
+          ]
+        },
+        "ManagedPolicyArns": [
+          {
+            "Fn::Sub": "arn:${AWS::Partition}:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
+          }
+        ]
+      },
+      "Metadata": {
+        "aws:cdk:path": "EksStack/AWSCDKCfnUtilsProviderCustomResourceProvider/Role"
+      }
+    },
+    "AWSCDKCfnUtilsProviderCustomResourceProviderHandlerCF82AA57": {
+      "Type": "AWS::Lambda::Function",
+      "Properties": {
+        "Code": {
+          "S3Bucket": "cdk-hnb659fds-assets-069140953284-ap-southeast-1",
+          "S3Key": "82f0a85294208ae3b91f3555d120b9dba87465fea28c5d773f8e4c1bfe31c863.zip"
+        },
+        "Timeout": 900,
+        "MemorySize": 128,
+        "Handler": "__entrypoint__.handler",
+        "Role": {
+          "Fn::GetAtt": [
+            "AWSCDKCfnUtilsProviderCustomResourceProviderRoleFE0EE867",
+            "Arn"
+          ]
+        },
+        "Runtime": "nodejs12.x"
+      },
+      "DependsOn": [
+        "AWSCDKCfnUtilsProviderCustomResourceProviderRoleFE0EE867"
+      ],
+      "Metadata": {
+        "aws:cdk:path": "EksStack/AWSCDKCfnUtilsProviderCustomResourceProvider/Handler",
+        "aws:asset:path": "asset.82f0a85294208ae3b91f3555d120b9dba87465fea28c5d773f8e4c1bfe31c863",
+        "aws:asset:property": "Code"
+      }
+    },
+    "awsnoderole29F9B05C": {
+      "Type": "AWS::IAM::Role",
+      "Properties": {
+        "AssumeRolePolicyDocument": {
+          "Statement": [
+            {
+              "Action": "sts:AssumeRoleWithWebIdentity",
+              "Condition": {
+                "StringEquals": {
+                  "Fn::GetAtt": [
+                    "awsnodetrustpolicy83070BC0",
+                    "Value"
+                  ]
+                }
+              },
+              "Effect": "Allow",
+              "Principal": {
+                "Federated": {
+                  "Ref": "tapnowstagingclusterOpenIdConnectProvider95209743"
+                }
+              }
+            }
+          ],
+          "Version": "2012-10-17"
+        },
+        "ManagedPolicyArns": [
+          {
+            "Fn::Join": [
+              "",
+              [
+                "arn:",
+                {
+                  "Ref": "AWS::Partition"
+                },
+                ":iam::aws:policy/AmazonEKS_CNI_Policy"
+              ]
+            ]
+          }
+        ]
+      },
+      "Metadata": {
+        "aws:cdk:path": "EksStack/aws-node-role/Resource"
+      }
+    },
+    "vpccni": {
+      "Type": "AWS::EKS::Addon",
+      "Properties": {
+        "AddonName": "vpc-cni",
+        "ClusterName": {
+          "Ref": "tapnowstagingcluster78169EDE"
+        },
+        "ResolveConflicts": "OVERWRITE",
+        "ServiceAccountRoleArn": {
+          "Fn::GetAtt": [
+            "awsnoderole29F9B05C",
+            "Arn"
+          ]
+        }
+      },
+      "Metadata": {
+        "aws:cdk:path": "EksStack/vpc-cni"
+      }
+    },
+    "kubeproxy": {
+      "Type": "AWS::EKS::Addon",
+      "Properties": {
+        "AddonName": "kube-proxy",
+        "ClusterName": {
+          "Ref": "tapnowstagingcluster78169EDE"
+        },
+        "ResolveConflicts": "OVERWRITE"
+      },
+      "Metadata": {
+        "aws:cdk:path": "EksStack/kube-proxy"
+      }
+    },
+    "coredns": {
+      "Type": "AWS::EKS::Addon",
+      "Properties": {
+        "AddonName": "coredns",
+        "ClusterName": {
+          "Ref": "tapnowstagingcluster78169EDE"
+        },
+        "ResolveConflicts": "OVERWRITE"
+      },
+      "Metadata": {
+        "aws:cdk:path": "EksStack/core-dns"
+      }
+    },
+    "awsloadbalancercontrollerpolicy8F3837F3": {
+      "Type": "AWS::IAM::Policy",
+      "Properties": {
+        "PolicyDocument": {
+          "Statement": [
+            {
+              "Action": "iam:CreateServiceLinkedRole",
+              "Condition": {
+                "StringEquals": {
+                  "iam:AWSServiceName": "elasticloadbalancing.amazonaws.com"
+                }
+              },
+              "Effect": "Allow",
+              "Resource": "*"
+            },
+            {
+              "Action": [
+                "ec2:DescribeAccountAttributes",
+                "ec2:DescribeAddresses",
+                "ec2:DescribeAvailabilityZones",
+                "ec2:DescribeInternetGateways",
+                "ec2:DescribeVpcs",
+                "ec2:DescribeVpcPeeringConnections",
+                "ec2:DescribeSubnets",
+                "ec2:DescribeSecurityGroups",
+                "ec2:DescribeInstances",
+                "ec2:DescribeNetworkInterfaces",
+                "ec2:DescribeTags",
+                "ec2:GetCoipPoolUsage",
+                "ec2:DescribeCoipPools",
+                "elasticloadbalancing:DescribeLoadBalancers",
+                "elasticloadbalancing:DescribeLoadBalancerAttributes",
+                "elasticloadbalancing:DescribeListeners",
+                "elasticloadbalancing:DescribeListenerCertificates",
+                "elasticloadbalancing:DescribeSSLPolicies",
+                "elasticloadbalancing:DescribeRules",
+                "elasticloadbalancing:DescribeTargetGroups",
+                "elasticloadbalancing:DescribeTargetGroupAttributes",
+                "elasticloadbalancing:DescribeTargetHealth",
+                "elasticloadbalancing:DescribeTags"
+              ],
+              "Effect": "Allow",
+              "Resource": "*"
+            },
+            {
+              "Action": [
+                "cognito-idp:DescribeUserPoolClient",
+                "acm:ListCertificates",
+                "acm:DescribeCertificate",
+                "iam:ListServerCertificates",
+                "iam:GetServerCertificate",
+                "waf-regional:GetWebACL",
+                "waf-regional:GetWebACLForResource",
+                "waf-regional:AssociateWebACL",
+                "waf-regional:DisassociateWebACL",
+                "wafv2:GetWebACL",
+                "wafv2:GetWebACLForResource",
+                "wafv2:AssociateWebACL",
+                "wafv2:DisassociateWebACL",
+                "shield:GetSubscriptionState",
+                "shield:DescribeProtection",
+                "shield:CreateProtection",
+                "shield:DeleteProtection"
+              ],
+              "Effect": "Allow",
+              "Resource": "*"
+            },
+            {
+              "Action": [
+                "ec2:AuthorizeSecurityGroupIngress",
+                "ec2:RevokeSecurityGroupIngress"
+              ],
+              "Effect": "Allow",
+              "Resource": "*"
+            },
+            {
+              "Action": "ec2:CreateSecurityGroup",
+              "Effect": "Allow",
+              "Resource": "*"
+            },
+            {
+              "Action": "ec2:CreateTags",
+              "Condition": {
+                "StringEquals": {
+                  "ec2:CreateAction": "CreateSecurityGroup"
+                },
+                "Null": {
+                  "aws:RequestTag/elbv2.k8s.aws/cluster": "false"
+                }
+              },
+              "Effect": "Allow",
+              "Resource": "arn:aws:ec2:*:*:security-group/*"
+            },
+            {
+              "Action": [
+                "ec2:CreateTags",
+                "ec2:DeleteTags"
+              ],
+              "Condition": {
+                "Null": {
+                  "aws:RequestTag/elbv2.k8s.aws/cluster": "true",
+                  "aws:ResourceTag/elbv2.k8s.aws/cluster": "false"
+                }
+              },
+              "Effect": "Allow",
+              "Resource": "arn:aws:ec2:*:*:security-group/*"
+            },
+            {
+              "Action": [
+                "ec2:AuthorizeSecurityGroupIngress",
+                "ec2:RevokeSecurityGroupIngress",
+                "ec2:DeleteSecurityGroup"
+              ],
+              "Condition": {
+                "Null": {
+                  "aws:ResourceTag/elbv2.k8s.aws/cluster": "false"
+                }
+              },
+              "Effect": "Allow",
+              "Resource": "*"
+            },
+            {
+              "Action": [
+                "elasticloadbalancing:CreateLoadBalancer",
+                "elasticloadbalancing:CreateTargetGroup"
+              ],
+              "Condition": {
+                "Null": {
+                  "aws:RequestTag/elbv2.k8s.aws/cluster": "false"
+                }
+              },
+              "Effect": "Allow",
+              "Resource": "*"
+            },
+            {
+              "Action": [
+                "elasticloadbalancing:CreateListener",
+                "elasticloadbalancing:DeleteListener",
+                "elasticloadbalancing:CreateRule",
+                "elasticloadbalancing:DeleteRule"
+              ],
+              "Effect": "Allow",
+              "Resource": "*"
+            },
+            {
+              "Action": [
+                "elasticloadbalancing:AddTags",
+                "elasticloadbalancing:RemoveTags"
+              ],
+              "Condition": {
+                "Null": {
+                  "aws:RequestTag/elbv2.k8s.aws/cluster": "true",
+                  "aws:ResourceTag/elbv2.k8s.aws/cluster": "false"
+                }
+              },
+              "Effect": "Allow",
+              "Resource": [
+                "arn:aws:elasticloadbalancing:*:*:targetgroup/*/*",
+                "arn:aws:elasticloadbalancing:*:*:loadbalancer/net/*/*",
+                "arn:aws:elasticloadbalancing:*:*:loadbalancer/app/*/*"
+              ]
+            },
+            {
+              "Action": [
+                "elasticloadbalancing:AddTags",
+                "elasticloadbalancing:RemoveTags"
+              ],
+              "Effect": "Allow",
+              "Resource": [
+                "arn:aws:elasticloadbalancing:*:*:listener/net/*/*/*",
+                "arn:aws:elasticloadbalancing:*:*:listener/app/*/*/*",
+                "arn:aws:elasticloadbalancing:*:*:listener-rule/net/*/*/*",
+                "arn:aws:elasticloadbalancing:*:*:listener-rule/app/*/*/*"
+              ]
+            },
+            {
+              "Action": [
+                "elasticloadbalancing:ModifyLoadBalancerAttributes",
+                "elasticloadbalancing:SetIpAddressType",
+                "elasticloadbalancing:SetSecurityGroups",
+                "elasticloadbalancing:SetSubnets",
+                "elasticloadbalancing:DeleteLoadBalancer",
+                "elasticloadbalancing:ModifyTargetGroup",
+                "elasticloadbalancing:ModifyTargetGroupAttributes",
+                "elasticloadbalancing:DeleteTargetGroup"
+              ],
+              "Condition": {
+                "Null": {
+                  "aws:ResourceTag/elbv2.k8s.aws/cluster": "false"
+                }
+              },
+              "Effect": "Allow",
+              "Resource": "*"
+            },
+            {
+              "Action": [
+                "elasticloadbalancing:RegisterTargets",
+                "elasticloadbalancing:DeregisterTargets"
+              ],
+              "Effect": "Allow",
+              "Resource": "arn:aws:elasticloadbalancing:*:*:targetgroup/*/*"
+            },
+            {
+              "Action": [
+                "elasticloadbalancing:SetWebAcl",
+                "elasticloadbalancing:ModifyListener",
+                "elasticloadbalancing:AddListenerCertificates",
+                "elasticloadbalancing:RemoveListenerCertificates",
+                "elasticloadbalancing:ModifyRule"
+              ],
+              "Effect": "Allow",
+              "Resource": "*"
+            }
+          ],
+          "Version": "2012-10-17"
+        },
+        "PolicyName": "AWSLoadBalancerControllerIAMPolicy",
+        "Roles": [
+          {
+            "Ref": "tapnowstagingclusterawsloadbalancercontrollerRole3391A03D"
+          }
+        ]
+      },
+      "Metadata": {
+        "aws:cdk:path": "EksStack/aws-load-balancer-controller-policy/Resource"
+      }
+    },
+    "CDKMetadata": {
+      "Type": "AWS::CDK::Metadata",
+      "Properties": {
+        "Analytics": "v2:deflate64:H4sIAAAAAAAA/1VQy07DMBD8Fu6OoUHiHuUAFEGr9ANQam/TbZzdyGunqqL8O04qCj3tc2ZnNterXD891GfJjG0zh3s97kJtWlWBcPQGVJp9j1h3eqzYgSoPtMQtOzSXubxmk4JW9Fi6KAG8Ks5SxHBUH3EPniCAfNaEB5CgvthC4zn2M/iv2PRA77ZkIjBh63lAm3h24Ac0UBjDkYJ6A9eVx9qHGVtYy5TumjyJBhM9hsvrL/FdY5pUmXRxd3M12/iXb2Lo40K6FqYFv3zhHnVTVYhASBsNUjMpSh70SR6H1Yt+Tt88CWLmk1zsQFfX+APWmh2baQEAAA=="
+      },
+      "Metadata": {
+        "aws:cdk:path": "EksStack/CDKMetadata/Default"
+      }
+    }
+  },
+  "Outputs": {
+    "tapnowstagingclusterConfigCommandB6BB1684": {
+      "Value": {
+        "Fn::Join": [
+          "",
+          [
+            "aws eks update-kubeconfig --name ",
+            {
+              "Ref": "tapnowstagingcluster78169EDE"
+            },
+            " --region ap-southeast-1 --role-arn ",
+            {
+              "Fn::GetAtt": [
+                "AdminRole38563C57",
+                "Arn"
+              ]
+            }
+          ]
+        ]
+      }
+    },
+    "tapnowstagingclusterGetTokenCommand2E119713": {
+      "Value": {
+        "Fn::Join": [
+          "",
+          [
+            "aws eks get-token --cluster-name ",
+            {
+              "Ref": "tapnowstagingcluster78169EDE"
+            },
+            " --region ap-southeast-1 --role-arn ",
+            {
+              "Fn::GetAtt": [
+                "AdminRole38563C57",
+                "Arn"
+              ]
+            }
+          ]
+        ]
+      }
+    },
+    "mastersRoleArn": {
+      "Description": "The ARN of the cluster role",
+      "Value": {
+        "Fn::GetAtt": [
+          "AdminRole38563C57",
+          "Arn"
+        ]
+      },
+      "Export": {
+        "Name": "mastersRole"
+      }
+    }
+  },
+  "Parameters": {
+    "BootstrapVersion": {
+      "Type": "AWS::SSM::Parameter::Value<String>",
+      "Default": "/cdk-bootstrap/hnb659fds/version",
+      "Description": "Version of the CDK Bootstrap resources in this environment, automatically retrieved from SSM Parameter Store. [cdk:skip]"
+    }
+  },
+  "Rules": {
+    "CheckBootstrapVersion": {
+      "Assertions": [
+        {
+          "Assert": {
+            "Fn::Not": [
+              {
+                "Fn::Contains": [
+                  [
+                    "1",
+                    "2",
+                    "3",
+                    "4",
+                    "5"
+                  ],
+                  {
+                    "Ref": "BootstrapVersion"
+                  }
+                ]
+              }
+            ]
+          },
+          "AssertDescription": "CDK bootstrap stack version 6 required. Please run 'cdk bootstrap' with a recent version of the CDK CLI."
+        }
+      ]
+    }
+  }
+}
