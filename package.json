@@ -1,8 +1,8 @@
 {
-  "name": "cdk-tapnow-stg",
+  "name": "cdk",
   "version": "0.1.0",
   "bin": {
-    "cdk-tapnow-stg": "bin/cdk-tapnow-stg.js"
+    "cdk": "bin/cdk.js"
   },
   "scripts": {
     "build": "tsc",
